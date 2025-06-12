@@ -2,9 +2,9 @@
 # Makefile Options
 # ----------------------------
 
-NAME = DEMO
+NAME = HELPMII
 ICON = icon.png
-DESCRIPTION = "CE Toolchain Demo"
+DESCRIPTION = "HelpMii for TI-84 Plus CE"
 COMPRESSED = NO
 ARCHIVED = NO
 
