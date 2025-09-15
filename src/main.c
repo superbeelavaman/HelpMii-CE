@@ -14,7 +14,7 @@
 
 const uint16_t color_blue   = 0x001F;
 const uint16_t color_lblue  = 0x0FFF;
-const uint16_t color_grey   = 0xDDDD;
+const uint16_t color_grey   = 0b1110011100111100;
 const uint16_t color_white  = 0xFFFF;
 const uint16_t color_black  = 0x0000;
 const uint16_t color_red    = 0xF800;
@@ -82,6 +82,7 @@ bool okCancel = true;
 bool update = true;
 bool go = false;
 int key = 0;
+int scrolllimit = 0;
 
 void option(int id, char* name, int posx, int posy) {
     int fgcolour;
@@ -99,6 +100,14 @@ void option(int id, char* name, int posx, int posy) {
     displayChar(character, bgcolour, color_red, posx, posy);
     displayString(name, bgcolour, fgcolour, posx + 2, posy);
 }
+
+void textLine(int id, char* name, int posx, int posy, int maxpage, int maxwidth) {
+    if ((id >= selected) && (id - selected <= maxpage)) {
+        drawRect(color_grey, posx*font_width, (posy + id - selected)*font_height, (posx + maxwidth)*font_width, (posy + id - selected + 1)*font_height);
+        displayString(name, color_grey, color_black, posx, posy + id - selected);
+    }
+}
+
 void okCancelButton(bool isok, int posx, int posy) {
     uint16_t fgcolour;
     uint16_t bgcolour;
@@ -141,23 +150,23 @@ void dialogHandleInputs() {
         if (key == sk_Enter) {
             go = true;
         }
-        if (selected > 9) {
+        if (selected > scrolllimit) {
             selected = 0;
         }
         if (selected < 0) {
-            selected = 9;
+            selected = scrolllimit;
         }
 }
 
 int mainMenu() {
     dialogBG("HelpMii", "v0.1", "Wii Linux Support Program");
     dialogFG(14, 25, "Main Menu", 10);
-    selected = 1;
     update = true;
     go = false;
     key = 0;
     selected = 1;
     okCancel = true;
+    scrolllimit = 9;
     while (!go) {
         if (update) {
             option(1, "Join the Discord",    5,  7);
@@ -170,17 +179,98 @@ int mainMenu() {
             update = false;
         }
         dialogHandleInputs();
+        if (selected == 4) {
+            selected = 9;
+        } 
+        if (selected == 8) {
+            selected = 3;
+        }
     }
-    return selected;
+    if (okCancel) {
+        return selected;
+    } else {
+        return 0;
+    }
+}
+
+int aboutDisplay() {
+    dialogFG(18, 30, "About HelpMii-CE", 10);
+    update = true;
+    go = false;
+    key = 0;
+    selected = 0;
+    okCancel = true;
+    scrolllimit = 11;
+    while (!go) {
+        if (update) {
+            textLine(  0, "HelpMii - The Wii Linux",  3, 5, 9, 24);
+            textLine(  1, "Support Program.",         3, 5, 9, 24);
+            textLine(  2, "",                         3, 5, 9, 24);
+            textLine(  3, "HelpMii Version v0.1",     3, 5, 9, 24);
+            textLine(  4, "Using SuperbeeLavaman",    3, 5, 9, 24);
+            textLine(  5, "Dialog framework v0.1.",   3, 5, 9, 24);
+            textLine(  6, "",                         3, 5, 9, 24);
+            textLine(  7, "HelpMii was made by",      3, 5, 9, 24);
+            textLine(  8, "Techflash, Tech64, and",   3, 5, 9, 24);
+            textLine(  9, "other contributors.",      3, 5, 9, 24);
+            textLine( 10, "CE Port written by",       3, 5, 9, 24);
+            textLine( 11, "SuperbeeLavaman.",         3, 5, 9, 24);
+            textLine( 12, "This program is licensed", 3, 5, 9, 24);
+            textLine( 13, "under the terms of the",   3, 5, 9, 24);
+            textLine( 14, "GNU General Public",       3, 5, 9, 24);
+            textLine( 15, "License, version 2.",      3, 5, 9, 24);
+            textLine( 16, "You may find these terms", 3, 5, 9, 24);
+            textLine( 17, "under the HelpMii",        3, 5, 9, 24);
+            textLine( 18, "install directory, under", 3, 5, 9, 24);
+            textLine( 19, "the LICENSE file.",        3, 5, 9, 24);
+            textLine( 20, "",                         3, 5, 9, 24);
+
+            okCancelButton(true, 11, 16);
+            update = false;
+        }
+        dialogHandleInputs();
+        okCancel = true;
+    }
+    return 0;
+}
+
+void qrCodePage() {
+    drawRect(color_black, 0, 0, 320, 240);
+    drawRect(color_white, 10, 10, 68, 68);
+    displayString("Scan this QR to join", color_black, color_white, 8, 1);
+    displayString("the Discord server.", color_black, color_white, 8, 2);
+    displayString("          |", color_black, color_white, 8, 3);
+    displayString("<---------/", color_black, color_white, 8, 4);
+    displayString("Not Scanning? Try another app.", color_black, color_white, 1, 6);
+    displayString("Still not scanning, or don't", color_black, color_white, 1, 8);
+    displayString("have a device to scan it?", color_black, color_white, 1,9);
+    displayString("Use this link.", color_black, color_white, 1, 10);
+    displayString("https://discord.gg/XfMHMhSQ8d", color_black, color_white, 1, 12);
+    while(!os_GetCSC());
 }
 
 int main(void)
 {
     os_FontSelect(os_SmallFont);
+    bool quit = false;
+    int pageid = 0;
 
-    mainMenu();
-    
-    while (!os_GetCSC());
+    while (!quit){
+        if (pageid == 0) {
+            pageid = mainMenu();
+            if (pageid == 0) {
+                quit = true;
+            }
+        } else if (pageid == 9) {
+            aboutDisplay();
+            pageid = 0;
+        } else if (pageid == 1) {
+            qrCodePage();
+            pageid = 0;
+        } else {
+            pageid = 0;
+        }
+    }
     os_ClrHomeFull();
     return 0;
 }
