@@ -234,9 +234,72 @@ int aboutDisplay() {
     return 0;
 }
 
+void renderQRCode() {
+    char qr_bytes[] = {
+        0b00000001, 0b10111111, 0b01100100, 0b00000111,
+        0b01111101, 0b00100100, 0b10111101, 0b11110111,
+        0b01000101, 0b10001110, 0b11000101, 0b00010111,
+        0b01000101, 0b00101111, 0b00101101, 0b00010111,
+        0b01000101, 0b11010011, 0b10000101, 0b00010111,
+        0b01111101, 0b01011000, 0b01010101, 0b11110111,
+        0b00000001, 0b01010101, 0b01010100, 0b00000111,
+        0b11111111, 0b11110010, 0b11111111, 0b11111111,
+        0b00000100, 0b00010100, 0b00101010, 0b10101111,
+        0b10000011, 0b00111110, 0b01100000, 0b01110111,
+        0b10010100, 0b00100110, 0b01110100, 0b11111111,
+        0b00000011, 0b10001101, 0b11000101, 0b00101111,
+        0b00001100, 0b10101110, 0b00101111, 0b10011111,
+        0b10110011, 0b01010000, 0b01001100, 0b01110111,
+        0b11100100, 0b10111000, 0b11110010, 0b10011111,
+        0b11100111, 0b01110010, 0b11110001, 0b01101111,
+        0b00010000, 0b01010101, 0b10001110, 0b10011111,
+        0b01010010, 0b11111111, 0b00000000, 0b01010111,
+        0b01101101, 0b10100110, 0b00110110, 0b01011111,
+        0b01101110, 0b11001100, 0b01100011, 0b11101111,
+        0b01010000, 0b11101111, 0b11100000, 0b01000111,
+        0b11111111, 0b00110000, 0b00110111, 0b00000111,
+        0b00000001, 0b00111000, 0b11000101, 0b00011111,
+        0b01111101, 0b11010010, 0b11000111, 0b01111111,
+        0b01000101, 0b00110101, 0b10110000, 0b01011111,
+        0b01000101, 0b01011110, 0b01000011, 0b10000111,
+        0b01000101, 0b01100110, 0b00111000, 0b00001111,
+        0b01111101, 0b01101100, 0b01010101, 0b00101111,
+        0b00000001, 0b01001111, 0b11101000, 0b01011111,
+    };
+    int idx;
+    int idy = 0;
+    int idz;
+    while (idy < 29) {
+        idx = 0;
+        while (idx < 4) {
+            idz = 0;
+            char pixels = qr_bytes[idx + (4*idy)];
+            while (idz < 8) {
+                bool pixel = (pixels << idz) & 0x80;
+                if (pixel) {
+                    vram[16*idx+640*idy+2*idz+2890] = 0xFFFF;
+                    vram[16*idx+640*idy+2*idz+2891] = 0xFFFF;
+                    vram[16*idx+640*idy+2*idz+3210] = 0xFFFF;
+                    vram[16*idx+640*idy+2*idz+3211] = 0xFFFF;
+                } else {
+                    vram[16*idx+640*idy+2*idz+2890] = 0x0000;
+                    vram[16*idx+640*idy+2*idz+2891] = 0x0000;
+                    vram[16*idx+640*idy+2*idz+3210] = 0x0000;
+                    vram[16*idx+640*idy+2*idz+3211] = 0x0000;
+                }
+                idz++;
+            }
+            idx++;
+        }
+        idy++;
+    }
+}
+
+
 void qrCodePage() {
     drawRect(color_black, 0, 0, 320, 240);
-    drawRect(color_white, 10, 10, 68, 68);
+    drawRect(color_white, 2, 2, 76, 76);
+    renderQRCode();
     displayString("Scan this QR to join", color_black, color_white, 8, 1);
     displayString("the Discord server.", color_black, color_white, 8, 2);
     displayString("          |", color_black, color_white, 8, 3);
@@ -247,6 +310,12 @@ void qrCodePage() {
     displayString("Use this link.", color_black, color_white, 1, 10);
     displayString("https://discord.gg/XfMHMhSQ8d", color_black, color_white, 1, 12);
     while(!os_GetCSC());
+}
+
+void guidePage() {}
+
+void supportPage() {
+    
 }
 
 int main(void)
@@ -267,7 +336,13 @@ int main(void)
         } else if (pageid == 1) {
             qrCodePage();
             pageid = 0;
-        } else {
+        } else if (pageid == 2) {
+            guidePage();
+            pageid = 0;
+        } else if (pageid == 3) {
+            supportPage();
+            pageid = 0;
+        } else { //THIS SHOULD  N E V E R  RUN!!!
             pageid = 0;
         }
     }
