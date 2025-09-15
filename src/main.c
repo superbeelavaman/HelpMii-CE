@@ -309,13 +309,22 @@ void qrCodePage() {
     displayString("have a device to scan it?", color_black, color_white, 1,9);
     displayString("Use this link.", color_black, color_white, 1, 10);
     displayString("https://discord.gg/XfMHMhSQ8d", color_black, color_white, 1, 12);
+    displayString("Press any key to continue...", color_black, color_white, 1, 14);
     while(!os_GetCSC());
 }
 
 void guidePage() {}
 
 void supportPage() {
-    
+    drawRect(color_black, 0, 0, 320, 240);
+    displayString("Unfortunately, this device", color_black, color_white, 1, 1);
+    displayString("is unable to obtain logs to", color_black, color_white, 1, 2);
+    displayString("upload to support.", color_black, color_white, 1, 3);
+    displayString("Please run `         ` on", color_black, color_white, 1, 5);
+    displayString("$ helpmii", color_black, color_grey, 13, 5);
+    displayString("your Wii running Linux and", color_black, color_white, 1, 6);
+    displayString("select option 3.", color_black, color_white, 1, 7);
+    while(!os_GetCSC());
 }
 
 int main(void)
