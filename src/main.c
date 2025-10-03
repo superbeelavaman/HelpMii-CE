@@ -83,6 +83,7 @@ bool update = true;
 bool go = false;
 int key = 0;
 int scrolllimit = 0;
+bool justText = 0;
 
 void option(int id, char* name, int posx, int posy) {
     int fgcolour;
@@ -135,9 +136,20 @@ void okCancelButton(bool isok, int posx, int posy) {
 
 void dialogHandleInputs() {
     key = os_GetCSC();
-        if ((key == sk_Left) || (key == sk_Right)) {
-            okCancel = !okCancel;
-            update = true;
+        if (justText) {
+            if (key == sk_Left)  {
+                selected -= 8;
+                update = true;
+            }
+            if (key == sk_Right) {
+                selected += 8;
+                update = true;
+            }
+        } else {
+            if ((key == sk_Left) || (key == sk_Right)) {
+                okCancel = !okCancel;
+                update = true;
+            }
         }
         if (key == sk_Up) {
             selected -= 1;
@@ -151,10 +163,18 @@ void dialogHandleInputs() {
             go = true;
         }
         if (selected > scrolllimit) {
-            selected = 0;
+            if (justText) {
+                selected = scrolllimit;
+            } else {
+                selected = 0;
+            }
         }
         if (selected < 0) {
+            if (justText) {
+                selected = 0;
+            } else {
             selected = scrolllimit;
+            }
         }
 }
 
@@ -167,6 +187,7 @@ int mainMenu() {
     selected = 1;
     okCancel = true;
     scrolllimit = 9;
+    justText = false;
     while (!go) {
         if (update) {
             option(1, "Join the Discord",    5,  7);
@@ -201,6 +222,7 @@ int aboutDisplay() {
     selected = 0;
     okCancel = true;
     scrolllimit = 11;
+    justText = true;
     while (!go) {
         if (update) {
             textLine(  0, "HelpMii - The Wii Linux",  3, 5, 9, 24, color_grey, color_black);
@@ -322,6 +344,7 @@ void guidePage() {
     selected = 0;
     okCancel = true;
     scrolllimit = 453;
+    justText = true;
     while (!go) {
         if (update) {
             textLine(  0, "Getting Started with Wii Linux", 0, 0, 17, 31, color_black, color_white);
@@ -720,7 +743,7 @@ void guidePage() {
             textLine(393, "am0\", ATTR{comp_algorithm}=\"zst",0, 0, 17, 31, color_black, color_white);
             textLine(394, "d\", ATTR{disksize}=\"100M\", RUN=",0, 0, 17, 31, color_black, color_white);
             textLine(395, "\"/usr/bin/mkswap -U clear /dev/",0, 0, 17, 31, color_black, color_white);
-            textLine(396, "%%k\", TAG+=\"systemd\"",           0, 0, 17, 31, color_black, color_white);
+            textLine(396, "%k\", TAG+=\"systemd\"",           0, 0, 17, 31, color_black, color_white);
             textLine(397, "  4. Save and quit the file,",   0, 0, 17, 31, color_black, color_white);
             textLine(398, "     after making sure that",    0, 0, 17, 31, color_black, color_white);
             textLine(399, "     you typed it correctly.",   0, 0, 17, 31, color_black, color_white);
