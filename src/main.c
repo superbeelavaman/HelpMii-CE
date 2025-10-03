@@ -321,7 +321,7 @@ void guidePage() {
     key = 0;
     selected = 0;
     okCancel = true;
-    scrolllimit = 180;
+    scrolllimit = 470;
     while (!go) {
         if (update) {
             textLine(  0, "Getting Started with Wii Linux", 0, 0, 17, 31, color_black, color_white);
