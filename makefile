@@ -13,4 +13,12 @@ CXXFLAGS = -Wall -Wextra -Oz
 
 # ----------------------------
 
+GUIDE ?= 0
+
+ifeq ($(GUIDE), 1)
+	CFLAGS += -DGETTING_STARTED_GUIDE
+endif
+
+
+
 include $(shell cedev-config --makefile)
